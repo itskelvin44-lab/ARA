@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARA Hub — Adaptive Reasoning Architecture Cognitive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="position:fixed;inset:0;background:var(--surface);z-index:200;display:none;align-items:center;justify-content:center;padding:20px">
+  <div class="auth-box">
+    <div class="auth-logo" aria-hidden="true">ARA</div>
+    <h1 class="auth-title">ARA Cognitives</h1>
+    <p class="auth-sub">The collaboration workspace for building the Adaptive Reasoning Architecture — connect, share ideas, and track progress together.</p>
+    <div class="auth-features">
+      <div class="auth-feat">
+        <div class="feat-icon">💬</div>
+        <div class="feat-title">Group Chat</div>
+        <div class="feat-desc">Real-time chat with the whole team</div>
+      </div>
+      <div class="auth-feat">
+        <div class="feat-icon">📋</div>
+        <div class="feat-title">Notice Board</div>
+        <div class="feat-desc">Post announcements & updates</div>
+      </div>
+      <div class="auth-feat">
+        <div class="feat-icon">📎</div>
+        <div class="feat-title">File Sharing</div>
+        <div class="feat-desc">Docs, images, and links</div>
+      </div>
+      <div class="auth-feat">
+        <div class="feat-icon">👥</div>
+        <div class="feat-title">Member Directory</div>
+        <div class="feat-desc">Find collaborators by skill</div>
+      </div>
+    </div>
+    
+    <div style="text-align:center; margin-bottom: 20px;">
+      <a href="know-more.html" id="main-page-link" style="text-decoration:none;">
+        <div class="hex-btn-wrap">
+          <button class="hex-btn" type="button" aria-label="Know more about ARA">
+            ⬡
+          </button>
+          <span class="hex-btn-label">Know More</span>
+        </div>
+      </a>
+    </div>
+
+    <button class="google-btn" onclick="signIn()">
+      <svg class="g-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <p class="auth-note">By joining, you agree to collaborate respectfully. This is a private workspace for ARA contributors.</p>
+  </div>
+</div>
+
+<!-- ONBOARDING SCREEN -->
+<div id="onboarding-screen" style="position:fixed;inset:0;background:var(--surface);z-index:150;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+  <div class="onboard-box">
+    <div class="onboard-header">
+      <div class="onboard-avatar-wrap">
+        <div class="onboard-avatar" id="ob-avatar-preview">?</div>
+        <div class="av-edit-badge" title="Pick a colour below">✏</div>
+      </div>
+      <div class="onboard-welcome">Welcome to ARA Hub 👋</div>
+      <div class="onboard-sub">Looks like you're new here! Set up your profile so teammates can find and connect with you.<br><span style="color:var(--accent);font-weight:500">You can update any of this at any time.</span></div>
+    </div>
+    <div class="onboard-card">
+      <div class="onboard-section">
+        <div class="onboard-section-label">Your identity</div>
+        <div class="onboard-field">
+          <label for="ob-name">Display name <span style="color:var(--red)">*</span></label>
+          <input type="text" id="ob-name" placeholder="e.g. Alex Kim" maxlength="40" oninput="obUpdatePreview()">
+        </div>
+        <div class="onboard-field">
+          <label for="ob-role">Role / Title</label>
+          <select id="ob-role" onchange="obUpdatePreview()">
+            <option value="">Select a role…</option>
+            <option>ML Engineer</option>
+            <option>Researcher</option>
+            <option>Software Engineer</option>
+            <option>Data Scientist</option>
+            <option>Product Manager</option>
+            <option>Designer</option>
+            <option>Contributor</option>
+            <option>Student</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="onboard-field">
+          <label for="ob-bio">Short bio</label>
+          <textarea id="ob-bio" rows="2" placeholder="What do you work on? What are you excited about?" maxlength="200"></textarea>
+          <div class="field-hint">Max 200 characters — shows on your member card</div>
+        </div>
+      </div>
+      <div class="onboard-section">
+        <div class="onboard-section-label">Skills &amp; interests</div>
+        <div class="onboard-field">
+          <label>Add skills <span style="font-weight:400;color:var(--ink3)">(press Enter or comma)</span></label>
+          <div class="skills-input-wrap">
+            <input type="text" id="ob-skill-input" placeholder="e.g. PyTorch, NLP, RLHF…" onkeydown="obSkillKey(event)" maxlength="30">
+            <button class="btn btn-ghost" style="flex-shrink:0;padding:8px 12px;font-size:13px" onclick="obAddSkill()">Add</button>
+          </div>
+          <div class="skills-chips" id="ob-skills-chips"></div>
+        </div>
+      </div>
+      <div class="onboard-section" style="margin-bottom:0">
+        <div class="onboard-section-label">Avatar colour</div>
+        <div class="color-row" id="ob-color-row">
+          <div class="color-swatch selected" style="background:#1a56e8" data-color="#1a56e8" onclick="obPickColor(this)"></div>
+          <div class="color-swatch" style="background:#7c4dff" data-color="#7c4dff" onclick="obPickColor(this)"></div>
+          <div class="color-swatch" style="background:#0cbfad" data-color="#0cbfad" onclick="obPickColor(this)"></div>
+          <div class="color-swatch" style="background:#e8334a" data-color="#e8334a" onclick="obPickColor(this)"></div>
+          <div class="color-swatch" style="background:#f5a623" data-color="#f5a623" onclick="obPickColor(this)"></div>
+          <div class="color-swatch" style="background:#19a86a" data-color="#19a86a" onclick="obPickColor(this)"></div>
+          <div class="color-swatch" style="background:#0e3bbf" data-color="#0e3bbf" onclick="obPickColor(this)"></div>
+          <div class="color-swatch" style="background:#3a3d47" data-color="#3a3d47" onclick="obPickColor(this)"></div>
+        </div>
+      </div>
+      <div class="onboard-actions">
+        <button class="btn-onboard-primary" onclick="obFinish()">Save profile &amp; enter ARA Hub →</button>
+        <button class="btn-onboard-skip" onclick="obSkip()">Skip for now — I'll set this up later</button>
+      </div>
+    </div>
+    <div class="onboard-progress">
+      <div class="onboard-dot"></div>
+      <div class="onboard-dot active"></div>
+      <div class="onboard-dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="main-app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="logo">
+        <div class="logo-mark">ARA</div>
+        <div>
+          <div class="logo-text">ARA Cognitive</div>
+          <div class="logo-sub">v0.1 · Shadow Demo</div>
+        </div>
+      </div>
+      <div class="user-badge" onclick="showProfile()">
+        <div class="avatar" id="user-av">JM</div>
+        <div class="user-info">
+          <div class="name" id="user-name">John M.</div>
+          <div class="role" id="user-role">ML Engineer</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-label">Workspace</div>
+        <div class="nav-item" onclick="navTo('welcome',this)">
+          <span class="icon">🏠</span> Welcome
+        </div>
+        <div class="nav-item active" onclick="navTo('dash',this)">
+          <span class="icon">⬡</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="navTo('chat',this)">
+          <span class="icon">💬</span> Chat
+        </div>
+        <div class="nav-item" onclick="navTo('notices',this)">
+          <span class="icon">📋</span> Notice Board
+        </div>
+        <div class="nav-item" onclick="navTo('members',this)">
+          <span class="icon">👥</span> Members
+        </div>
+        <div class="nav-item" onclick="navTo('repo',this)">
+          <span class="icon">🔗</span> Repository
+        </div>
+        <div class="nav-item" onclick="navTo('notes',this)">
+          <span class="icon">📚</span> Project Notes
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Resources</div>
+        <div class="nav-item" onclick="openLink('https://github.com')">
+          <span class="icon">🐙</span> GitHub
+        </div>
+        <div class="nav-item" onclick="openLink('https://supabase.com')">
+          <span class="icon">🗄</span> Supabase DB
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="nav-item" onclick="signOut()">
+        <span class="icon">🚪</span> Sign out
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+      <div id="topbar-title" style="flex:1">
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-sub">Good to have you back</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-icon" onclick="showNewPost()" title="New notice">+</button>
+        <button class="btn btn-primary" onclick="navTo('chat',null);setTimeout(()=>document.getElementById('chat-textarea').focus(),100)">
+          <span>💬</span> <span class="hide-mobile">New Message</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- WELCOME PANEL -->
+    <div id="welcome-panel" class="panel content" style="overflow-y:auto">
+
+      <div class="welcome-hero reveal">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;position:relative;z-index:1">
+          <div style="width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:600;color:#fff;flex-shrink:0">ARA</div>
+          <div>
+            <div style="font-size:11px;font-family:var(--mono);color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase">Cognitive Hub</div>
+            <div style="font-size:11px;font-family:var(--mono);color:rgba(12,191,173,.8)">Shadow Demo · Active</div>
+          </div>
+        </div>
+        <div class="welcome-hero-title" style="font-size:clamp(20px,4vw,32px);font-weight:700;margin-bottom:14px;position:relative;z-index:1;line-height:1.2">Welcome to the<br>Adaptive Reasoning Architecture</div>
+        <div class="welcome-hero-sub" style="font-size:14px;color:rgba(255,255,255,.65);max-width:640px;line-height:1.8;margin-bottom:24px;position:relative;z-index:1">
+          The ARA is a fundamentally new approach to neural intelligence — a model that separates <strong style="color:rgba(255,255,255,.9)">what it knows</strong> from <strong style="color:rgba(255,255,255,.9)">how it thinks</strong>. Its frozen 40% reasoning core encodes timeless logical primitives; its plastic 60% workspace adapts in real time to each problem. This is the collaboration hub for the team building it.
+        </div>
+        <div class="welcome-hero-actions" style="display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1">
+          <button class="btn btn-primary" style="background:var(--teal);padding:11px 22px;font-size:14px" onclick="navTo('dash',null)">Go to Dashboard →</button>
+          <button class="btn btn-ghost" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:11px 22px;font-size:14px" onclick="navTo('repo',null)">View Repository →</button>
+        </div>
+        <div style="position:absolute;top:-60px;right:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.02);pointer-events:none"></div>
+        <div style="position:absolute;bottom:-50px;left:20%;width:160px;height:160px;border-radius:50%;background:rgba(12,191,173,.04);pointer-events:none"></div>
+      </div>
+
+      <div class="reveal stats-row">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;text-align:center">
+          <div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--accent)">10M</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">Prototype Params</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;text-align:center">
+          <div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--teal)">40/60</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">Core / Workspace Split</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;text-align:center">
+          <div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--purple)">8</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">Transformer Layers</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;text-align:center">
+          <div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--amber)">25+</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">Reasoning Primitives</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;text-align:center">
+          <div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--green)">775M</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">Effective Param Equiv.</div>
+        </div>
+      </div>
+
+      <div class="welcome-overview reveal" style="margin-bottom:24px">
+        <div class="welcome-overview-title" style="font-size:17px;margin-bottom:16px">🧬 What is the Adaptive Reasoning Architecture?</div>
+        <div class="welcome-overview-body">
+          <p>Most neural networks are monolithic: every weight participates in both storing knowledge and executing reasoning. The ARA breaks this coupling. It divides the model into two distinct, mathematically defined zones that play complementary roles during inference.</p>
+          <p>The <strong>40% Reasoning Core (θ_R)</strong> is frozen after pre-training. It encodes the atomic operations of mathematical thought — operations like distribute, substitute, differentiate, factor, apply the chain rule — as structured patterns in its weight matrices. These never change. They are the bedrock of logical procedure, independent of any particular problem.</p>
+          <p>The <strong>60% Plastic Workspace (θ_P)</strong> is the dynamic half. During each problem-solving session it updates its own weights in real time, guided by a <em>coherence loss</em> that measures whether the current partial solution is internally consistent and progressing toward the goal. This is inference-time learning — something no conventional network does.</p>
+        </div>
+      </div>
+
+      <div class="reveal" style="margin-bottom:28px">
+        <div style="font-size:15px;font-weight:600;letter-spacing:-.2px;margin-bottom:16px">⚙️ How It Works: Two Phases</div>
+        <div class="phase-grid">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px;border-top:3px solid var(--accent)">
+            <div style="font-size:11px;font-family:var(--mono);color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Phase 1 — Pre-Training</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:8px">Building the Reasoning Core</div>
+            <div style="font-size:13px;color:var(--ink2);line-height:1.7">The 40% reasoning core (θ_R) is trained on structured solution traces. The 60% workspace is frozen as a random reservoir, providing a rich non-linear feature space. The core learns to read and write into this space.</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px;border-top:3px solid var(--teal)">
+            <div style="font-size:11px;font-family:var(--mono);color:var(--teal);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Phase 2 — Inference</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:8px">The Workspace Takes Over</div>
+            <div style="font-size:13px;color:var(--ink2);line-height:1.7">At deployment θ_R freezes permanently. θ_P becomes trainable. Each micro-iteration: the frozen core proposes a reasoning step, checks coherence, and if consistent — updates the plastic weights. The model literally rewrites itself while solving.</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px;border-top:3px solid var(--purple)">
+            <div style="font-size:11px;font-family:var(--mono);color:var(--purple);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Phase 3 — Scaling</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:8px">Council & Distributed Intelligence</div>
+            <div style="font-size:13px;color:var(--ink2);line-height:1.7">Beyond the 10M prototype, multiple ARA instances form a Council, debating via weighted graph consensus. Byzantine fault tolerance is built in. Diverse nodes outperform identical copies.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="welcome-overview reveal" style="margin-bottom:24px;border-left:3px solid var(--accent);padding-left:0;overflow:hidden">
+        <div style="padding:20px 24px;background:linear-gradient(90deg,rgba(26,86,232,.04) 0%,transparent 100%)">
+          <div class="welcome-overview-title" style="font-size:16px;margin-bottom:14px">📐 The Mathematics, in Plain Terms</div>
+          <div class="welcome-overview-body">
+            <p>Every claim in the ARA is backed by a derivation from first principles.</p>
+          </div>
+          <div class="eq-grid">
+            <div style="background:var(--surface);border-radius:var(--r);padding:14px">
+              <div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:6px">Masked Gradient Update</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--ink2);line-height:1.6">ΔW = −η · M_plastic ⊙ ∇_W L</div>
+              <div style="font-size:11px;color:var(--ink3);margin-top:4px">Only the 60% plastic neurons receive gradient updates.</div>
+            </div>
+            <div style="background:var(--surface);border-radius:var(--r);padding:14px">
+              <div style="font-family:var(--mono);font-size:11px;color:var(--teal);margin-bottom:6px">Coherence Loss</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--ink2);line-height:1.6">L_coh = −μ₁·log p(sₜ|sₜ₋₁,θ) − μ₂·Prog(t)</div>
+              <div style="font-size:11px;color:var(--ink3);margin-top:4px">Consistency check + progress toward the goal state.</div>
+            </div>
+            <div style="background:var(--surface);border-radius:var(--r);padding:14px">
+              <div style="font-family:var(--mono);font-size:11px;color:var(--purple);margin-bottom:6px">Adaptive Resistance (EWC)</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--ink2);line-height:1.6">L_inf = L_coh + (λ_R/2)·Σ Rᵢ·(θᵢ−θᵢ₀)²</div>
+              <div style="font-size:11px;color:var(--ink3);margin-top:4px">Fisher-weighted springs resist overwriting useful neurons.</div>
+            </div>
+            <div style="background:var(--surface);border-radius:var(--r);padding:14px">
+              <div style="font-family:var(--mono);font-size:11px;color:var(--amber);margin-bottom:6px">Scaling Identity</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--ink2);line-height:1.6">N_eff = N · T^β · (1−f_facts)⁻¹</div>
+              <div style="font-size:11px;color:var(--ink3);margin-top:4px">10M model → ~775M parameter-equivalents at T=1000.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" style="margin-bottom:24px">
+        <div style="font-size:15px;font-weight:600;letter-spacing:-.2px;margin-bottom:14px">🔬 The Shadow Demo — Current Focus</div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px 24px">
+          <div class="spec-grid">
+            <div>
+              <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:4px">Architecture</div>
+              <div style="font-size:13px;font-weight:500">d_model=128, 8 layers, d_ff=512</div>
+              <div style="font-size:12px;color:var(--ink3)">Vocab: 8,000 symbolic tokens</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:4px">Split</div>
+              <div style="font-size:13px;font-weight:500">204 frozen / 307 plastic neurons per FFN</div>
+              <div style="font-size:12px;color:var(--ink3)">Per-neuron, interleaved across all 8 layers</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:4px">Memory footprint</div>
+              <div style="font-size:13px;font-weight:500">~120 MB total</div>
+              <div style="font-size:12px;color:var(--ink3)">Runs on any modern GPU or Apple Silicon</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:4px">Benchmark targets</div>
+              <div style="font-size:13px;font-weight:500">≥75% GSM8K · ≥40% MATH</div>
+              <div style="font-size:12px;color:var(--ink3)">Within 5–7% of 1B-parameter baseline</div>
+            </div>
+          </div>
+          <div style="background:var(--surface);border-radius:var(--r);padding:14px;font-size:13px;color:var(--ink2);line-height:1.7;border-left:3px solid var(--teal)">
+            <strong>Why does a 10M model compete with a 1B model?</strong> Standard transformers use 50–70% of their parameters to store factual knowledge. The ARA stores nothing — it retrieves facts from an external library. All 10M parameters go to reasoning. Combine that with 1,000 micro-iterations of self-modifying inference, and the effective capacity reaches ~775M parameter-equivalents.
+          </div>
+        </div>
+      </div>
+
+      <div class="welcome-overview reveal" style="margin-bottom:24px">
+        <div class="welcome-overview-title" style="font-size:16px;margin-bottom:16px">🧠 The Three-Tier Memory Hierarchy</div>
+        <div class="welcome-overview-body">
+          <p>The plastic workspace self-organises over time into three stability tiers, driven entirely by the resistance values R_i that each neuron accumulates through use:</p>
+        </div>
+        <div class="tier-grid">
+          <div style="background:linear-gradient(135deg,#e8effd,#f7f9ff);border-radius:var(--r);padding:16px;border:1px solid #c8d8fd">
+            <div style="font-size:11px;font-family:var(--mono);font-weight:600;color:var(--accent);margin-bottom:6px">R_i &lt; 0.2 · FREE POOL</div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px">Working Memory</div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.6">Updated freely each iteration. Problem-specific scratch space. Fast, volatile, context-specific.</div>
+          </div>
+          <div style="background:linear-gradient(135deg,#e6fbf7,#f4fffe);border-radius:var(--r);padding:16px;border:1px solid #b0ede6">
+            <div style="font-size:11px;font-family:var(--mono);font-weight:600;color:var(--teal2);margin-bottom:6px">0.2 ≤ R_i &lt; 0.7 · ADAPTIVE</div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px">Procedural Skills</div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.6">Protected within a problem type. Cross-problem heuristics that proved useful.</div>
+          </div>
+          <div style="background:linear-gradient(135deg,#f3eeff,#faf7ff);border-radius:var(--r);padding:16px;border:1px solid #d8c8fd">
+            <div style="font-size:11px;font-family:var(--mono);font-weight:600;color:var(--purple);margin-bottom:6px">R_i ≥ 0.7 · CONSOLIDATED</div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px">Experiential Memory</div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.6">Rarely overwritten. Accumulated mathematical intuition from hundreds of solved problems.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" style="margin-bottom:24px">
+        <div style="font-size:15px;font-weight:600;letter-spacing:-.2px;margin-bottom:14px">🧭 Navigate the Hub</div>
+        <div class="welcome-sections" style="margin-bottom:0">
+          <div class="welcome-card" onclick="navTo('chat',null)">
+            <div class="welcome-card-icon">💬</div>
+            <div class="welcome-card-title">Group Chat</div>
+            <div class="welcome-card-desc">A single shared channel for the entire team. Discuss architecture decisions, share files, and coordinate sprints in real time.</div>
+            <div class="welcome-card-link">Open Chat →</div>
+          </div>
+          <div class="welcome-card" onclick="navTo('notices',null)">
+            <div class="welcome-card-icon">📋</div>
+            <div class="welcome-card-title">Notice Board</div>
+            <div class="welcome-card-desc">Post announcements, updates, questions, and ideas. Urgent notices and recent posts appear on the Dashboard.</div>
+            <div class="welcome-card-link">Open Notices →</div>
+          </div>
+          <div class="welcome-card" onclick="navTo('members',null)">
+            <div class="welcome-card-icon">👥</div>
+            <div class="welcome-card-title">Member Directory</div>
+            <div class="welcome-card-desc">Find collaborators by name, role, or skill. View profiles, see who's online, and send direct messages.</div>
+            <div class="welcome-card-link">View Members →</div>
+          </div>
+          <div class="welcome-card" onclick="navTo('repo',null)">
+            <div class="welcome-card-icon">🔗</div>
+            <div class="welcome-card-title">Repository</div>
+            <div class="welcome-card-desc">Access the codebase, architecture spec, and contribution guide. Clone, branch, and push your work.</div>
+            <div class="welcome-card-link">Open Repository →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="welcome-overview reveal" style="margin-bottom:8px">
+        <div class="welcome-overview-title" style="font-size:16px;margin-bottom:14px">🚀 Getting Started</div>
+        <div class="welcome-steps">
+          <div class="welcome-step">
+            <div class="welcome-step-num">1</div>
+            <div class="welcome-step-title">Say Hello</div>
+            <div class="welcome-step-desc">Introduce yourself in the group chat and mention your background and interests</div>
+          </div>
+          <div class="welcome-step">
+            <div class="welcome-step-num">2</div>
+            <div class="welcome-step-title">Read the Notices</div>
+            <div class="welcome-step-desc">Check pinned announcements for current sprint priorities and open tasks</div>
+          </div>
+          <div class="welcome-step">
+            <div class="welcome-step-num">3</div>
+            <div class="welcome-step-title">Clone the Repo</div>
+            <div class="welcome-step-desc">Follow the contribution guide in Repository to set up the codebase locally</div>
+          </div>
+          <div class="welcome-step">
+            <div class="welcome-step-num">4</div>
+            <div class="welcome-step-title">Pick an Issue</div>
+            <div class="welcome-step-desc">Grab an open GitHub issue and start contributing — all skill levels welcome</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DASHBOARD PANEL -->
+    <div id="dash-panel" class="panel active content">
+      <div class="dash-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-members">—</div>
+          <div class="stat-label">Active Members</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-messages">—</div>
+          <div class="stat-label">Messages Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-files">—</div>
+          <div class="stat-label">Files Shared</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">10M</div>
+          <div class="stat-label">Prototype Target</div>
+          <div class="stat-trend new">Shadow Demo</div>
+        </div>
+      </div>
+
+      <div class="notice-board mb-3">
+        <div class="section-head mb-3">
+          <div class="section-title">📋 Recent & Pinned Notices</div>
+          <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="navTo('notices',null)">See all</button>
+        </div>
+        <div id="pinned-notices"></div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">⚡ Recent Activity</div>
+      </div>
+      <div class="activity-list" id="activity-feed"></div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div id="chat-panel" class="panel" style="overflow:hidden">
+      <div class="chat-layout" style="flex:1;overflow:hidden">
+        <div class="chat-main">
+          <div class="chat-head">
+            <div class="chat-head-info">
+              <div class="chat-head-name">💬 Group Chat</div>
+              <div class="chat-head-desc">All members · Everyone's here</div>
+            </div>
+            <div class="topbar-actions">
+              <button class="btn btn-ghost btn-icon" title="Members" onclick="navTo('members',null)">👥</button>
+            </div>
+          </div>
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class="typing-ind" id="typing-ind"></div>
+          <div class="chat-input-area">
+            <div class="chat-input-wrap">
+              <div class="chat-input-toolbar">
+                <button title="Bold" onclick="formatText('bold')"><b>B</b></button>
+                <button title="Italic" onclick="formatText('italic')"><i>I</i></button>
+                <button title="Code" onclick="formatText('code')">{ }</button>
+                <button title="Link" onclick="formatText('link')">🔗</button>
+              </div>
+              <textarea id="chat-textarea" class="chat-textarea" placeholder="Message the group..." rows="2"
+                onkeydown="handleChatKey(event)" oninput="updateSendBtn()"></textarea>
+              <div class="chat-input-foot">
+                <div>
+                  <label class="chat-attach-btn" for="file-upload" title="Attach file">
+                    📎 <span style="font-size:12px">Attach</span>
+                  </label>
+                  <input type="file" id="file-upload" style="display:none" onchange="handleFileAttach(this)" multiple accept="image/*,.pdf,.doc,.docx,.txt,.md">
+                </div>
+                <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled title="Send">➤</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTICES PANEL -->
+    <div id="notices-panel" class="panel content">
+      <div class="notice-form">
+        <div class="section-title mb-3">📝 Post a Notice</div>
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input class="form-input" id="notice-title" placeholder="e.g. Weekly sync — Friday 3pm UTC">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-input form-select" id="notice-cat">
+            <option value="info">📘 Information</option>
+            <option value="urgent">🔴 Urgent</option>
+            <option value="update">✅ Update</option>
+            <option value="question">❓ Question</option>
+            <option value="idea">💡 Idea</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-input form-textarea" id="notice-body" placeholder="Share your update, question, or idea with the team..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="postNotice()" style="width:100%">Post Notice</button>
+      </div>
+      <div class="notice-full-list" id="notices-list"></div>
+    </div>
+
+    <!-- MEMBERS PANEL -->
+    <div id="members-panel" class="panel content">
+      <div class="flex gap-2 mb-3">
+        <input class="form-input" id="member-search" placeholder="Search members by name or skill..." style="flex:1" oninput="filterMembers(this.value)">
+        <select class="form-input form-select" style="width:140px" onchange="filterByRole(this.value)">
+          <option value="">All roles</option>
+          <option value="ML Engineer">ML Engineer</option>
+          <option value="Researcher">Researcher</option>
+          <option value="Engineer">Engineer</option>
+          <option value="Contributor">Contributor</option>
+        </select>
+      </div>
+      <div class="members-grid" id="members-grid"></div>
+    </div>
+
+    <!-- REPO PANEL -->
+    <div id="repo-panel" class="panel content">
+      <div class="repo-hero">
+        <div class="repo-title">🧬 ARA — Adaptive Reasoning Architecture</div>
+        <div class="repo-sub">Open repository for the Shadow Demo prototype and full architecture specification. A 10M-parameter model designed to rival 1B-parameter transformers on mathematical reasoning.</div>
+        <button class="repo-link-btn" onclick="openLink('https://github.com/ara-collective/adaptive-reasoning-architecture')">
+          🐙 View on GitHub →
+        </button>
+        <div class="repo-stats">
+          <div class="repo-stat">⭐ <span>142</span> stars</div>
+          <div class="repo-stat">🔀 <span>23</span> forks</div>
+          <div class="repo-stat">🐛 <span>8</span> open issues</div>
+          <div class="repo-stat">👁 <span>310</span> watching</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+        <a href="https://github.com/ara-collective/adaptive-reasoning-architecture" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background:var(--teal);padding:10px 20px;font-size:14px">🐙 Go to Project Repository on GitHub →</a>
+        <span class="text-xs text-muted">or browse the full README below</span>
+      </div>
+
+      <div class="readme-section">
+        <div class="readme-header">
+          <div class="readme-title">📄 README.md</div>
+          <span class="text-xs text-muted font-mono">adaptive-reasoning-architecture</span>
+        </div>
+        <div class="readme-body" id="readme-content">
+          <h3>Adaptive Reasoning Architecture (ARA)</h3>
+          <p>A neural architecture that separates <strong>how a model thinks</strong> from <strong>what it knows</strong>. The frozen 40% reasoning core (θ_R) encodes timeless logical primitives. The plastic 60% workspace (θ_P) adapts in real time to each problem via inference-time weight updates — something no conventional transformer does.</p>
+          <p>The result: a <strong>10M-parameter model with ~775M effective parameter-equivalents</strong> on reasoning tasks, achieved by combining iterative inference, knowledge decoupling, and adaptive resistance.</p>
+
+          <h3>Architecture at a Glance</h3>
+          <pre>d_model    = 128       # Model dimension
+n_layers   = 8         # Transformer depth
+d_ff       = 512       # FFN hidden dim (4 × d_model)
+n_heads    = 4         # Attention heads
+vocab_size = 8000      # Symbolic token vocabulary
+
+# The 40/60 split (per-neuron, across all FFN layers)
+frozen_neurons  = 204  # floor(0.40 × 512) per FFN layer → reasoning core
+plastic_neurons = 307  # ceiling(0.60 × 512) per FFN layer → workspace
+
+total_params       = ~10,000,000
+reasoning_core     = ~4,000,000  (θ_R — frozen at inference)
+plastic_workspace  = ~6,000,000  (θ_P — updated per micro-iteration)</pre>
+
+          <h3>Quick Start</h3>
+          <pre>git clone https://github.com/ara-collective/adaptive-reasoning-architecture.git
+cd adaptive-reasoning-architecture
+pip install -r requirements.txt
+
+# Phase 1: train the reasoning core
+python shadow_demo/train.py --config configs/base_10m.yaml --phase 1
+
+# Phase 2: run iterative inference on a problem
+python shadow_demo/infer.py --problem "Solve: 3x² + 5x - 2 = 0" --max_iters 1000</pre>
+        </div>
+      </div>
+
+      <div class="cheatsheet">
+        <div class="cheatsheet-title">📋 Contribution Guide — How to Clone, Branch & Push</div>
+        <div class="cheatsheet-steps">
+          <div class="cheatsheet-step">
+            <div class="cheatsheet-step-num">1</div>
+            <div class="cheatsheet-step-content">
+              <div class="cheatsheet-step-title">Fork the Repository</div>
+              <div class="cheatsheet-step-desc">Go to the GitHub repo and click the <strong>Fork</strong> button (top right).</div>
+            </div>
+          </div>
+          <div class="cheatsheet-step">
+            <div class="cheatsheet-step-num">2</div>
+            <div class="cheatsheet-step-content">
+              <div class="cheatsheet-step-title">Clone Your Fork Locally</div>
+              <code>git clone https://github.com/your-username/adaptive-reasoning-architecture.git
+cd adaptive-reasoning-architecture</code>
+            </div>
+          </div>
+          <div class="cheatsheet-step">
+            <div class="cheatsheet-step-num">3</div>
+            <div class="cheatsheet-step-content">
+              <div class="cheatsheet-step-title">Add the Upstream Remote</div>
+              <code>git remote add upstream https://github.com/ara-collective/adaptive-reasoning-architecture.git
+git remote -v</code>
+            </div>
+          </div>
+          <div class="cheatsheet-step">
+            <div class="cheatsheet-step-num">4</div>
+            <div class="cheatsheet-step-content">
+              <div class="cheatsheet-step-title">Create a Feature Branch</div>
+              <code>git checkout -b feature/my-cool-change</code>
+            </div>
+          </div>
+          <div class="cheatsheet-step">
+            <div class="cheatsheet-step-num">5</div>
+            <div class="cheatsheet-step-content">
+              <div class="cheatsheet-step-title">Make Changes & Commit</div>
+              <code>git add .
+git commit -m "feat: add masked gradient update for frozen neurons"</code>
+            </div>
+          </div>
+          <div class="cheatsheet-step">
+            <div class="cheatsheet-step-num">6</div>
+            <div class="cheatsheet-step-content">
+              <div class="cheatsheet-step-title">Pull Latest Changes & Push</div>
+              <code>git pull upstream main
+git push origin feature/my-cool-change</code>
+            </div>
+          </div>
+          <div class="cheatsheet-step">
+            <div class="cheatsheet-step-num">7</div>
+            <div class="cheatsheet-step-content">
+              <div class="cheatsheet-step-title">Open a Pull Request</div>
+              <div class="cheatsheet-step-desc">Go to your fork on GitHub, find your branch, and click <strong>Compare & pull request</strong>.</div>
+            </div>
+          </div>
+        </div>
+        <div class="cheatsheet-note">
+          💡 <strong>Pro tip:</strong> Keep your fork in sync with <code>git pull upstream main</code>. Reach out in the group chat if you need help!
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECT NOTES PANEL -->
+    <div id="notes-panel" class="panel content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <div class="section-title" style="font-size:16px">📚 Project Notes & Resources</div>
+          <div class="text-sm text-muted mt-1">Upload documents, books, papers, and resources for the project</div>
+        </div>
+      </div>
+
+      <label class="upload-zone" for="notes-file-upload">
+        <div class="upload-zone-icon">📤</div>
+        <div class="upload-zone-text">
+          <div class="upload-zone-title">Upload Files</div>
+          <div class="upload-zone-sub">PDF, DOCX, images, code & more</div>
+        </div>
+        <span class="btn btn-primary" style="padding:7px 16px;font-size:12px;pointer-events:none">Browse</span>
+      </label>
+      <input type="file" id="notes-file-upload" style="display:none" onchange="uploadNoteFile(this)" multiple accept=".pdf,.doc,.docx,.txt,.md,.pptx,.jpg,.jpeg,.png,.gif,.webp,.zip,.py,.js,.ts,.sql,.yaml,.json,.csv">
+      <div id="notes-files-list" style="margin-bottom:16px"></div>
+
+      <div class="notice-form">
+        <div class="section-title mb-3">✏️ Add a Resource Link or Note</div>
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input class="form-input" id="note-title" placeholder="e.g. Attention Is All You Need — Paper">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-input form-select" id="note-type">
+            <option value="paper">📄 Paper</option>
+            <option value="book">📖 Book</option>
+            <option value="doc">📝 Document</option>
+            <option value="link">🔗 Link</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Link or Description</label>
+          <textarea class="form-input form-textarea" id="note-desc" placeholder="Paste a link (arXiv, GitHub, etc.) or write a short description..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="addNote()" style="width:100%">Add Resource</button>
+      </div>
+      <div id="notes-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Your Profile</div>
+      <button class="modal-close" onclick="closeModal('profile-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="avatar" id="modal-av" style="width:52px;height:52px;font-size:18px">JM</div>
+        <div>
+          <div class="fw-600" id="modal-name" style="font-size:16px">John M.</div>
+          <div class="text-sm text-muted" id="modal-email">john@example.com</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Display Name</label>
+        <input class="form-input" id="profile-name" value="John M.">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role / Title</label>
+        <input class="form-input" id="profile-role" value="ML Engineer">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('profile-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="member-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="mm-title">Member</div>
+      <button class="modal-close" onclick="closeModal('member-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="mm-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('member-modal')">Close</button>
+      <button class="btn btn-primary" onclick="dmMember()">💬 Send Message</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<div id="overlay-bg" style="display:none;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.3)" onclick="closeSidebar()"></div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/notices.js"></script>
+<script src="js/members.js"></script>
+<script src="js/notes.js"></script>
+</body>
+</html>
