@@ -51,27 +51,35 @@ function loadMessages() {
 
 // ── SEND MESSAGE ──
 function sendMessage() {
-  const ta = document.getElementById('chat-textarea');
-  const text = ta.value.trim();
-  if (!text) return;
-  ta.value = '';
-  updateSendBtn();
-
-  window.sb.from('messages').insert({
-    sender_id: window.S.user.id,
-    content:   text,
-    type:      'text'
-  }).then(({ error }) => {
-    if (error) {
-      console.error('Send failed:', error);
-      toast('Message failed to send. Check console.', 'error');
-      return;
-    }
-    loadMessages();
-  }).catch(err => {
-    console.error('Send error:', err);
-    toast('Network error sending message.', 'error');
-  });
+  try {
+    const ta = document.getElementById('chat-textarea');
+    const text = ta.value.trim();
+    console.log('sendMessage called. Text:', text);
+    if (!text) { console.log('sendMessage: no text, returning'); return; }
+    ta.value = '';
+    updateSendBtn();
+    console.log('sendMessage: about to insert');
+    
+    window.sb.from('messages').insert({
+      sender_id: window.S.user.id,
+      content:   text,
+      type:      'text'
+    }).then(({ error }) => {
+      console.log('sendMessage: insert done. Error:', error);
+      if (error) {
+        console.error('Send failed:', error);
+        toast('Message failed to send. Check console.', 'error');
+        return;
+      }
+      loadMessages();
+    }).catch(err => {
+      console.error('Send error:', err);
+      toast('Network error sending message.', 'error');
+    });
+    console.log('sendMessage: insert called');
+  } catch(e) {
+    console.error('sendMessage crashed:', e);
+  }
 }
 // ── REALTIME SUBSCRIPTION ──
 function subscribeToMessages() {
