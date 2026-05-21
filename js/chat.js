@@ -61,9 +61,18 @@ function sendMessage() {
     sender_id: window.S.user.id,
     content:   text,
     type:      'text'
+  }).then(({ error }) => {
+    if (error) {
+      console.error('Send failed:', error);
+      toast('Message failed to send. Check console.', 'error');
+      return;
+    }
+    loadMessages();
+  }).catch(err => {
+    console.error('Send error:', err);
+    toast('Network error sending message.', 'error');
   });
 }
-
 // ── REALTIME SUBSCRIPTION ──
 function subscribeToMessages() {
   window.S.realtimeChannel = window.sb
