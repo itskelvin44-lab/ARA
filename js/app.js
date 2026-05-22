@@ -105,17 +105,24 @@ function saveProfile() {
   const name = document.getElementById('profile-name').value.trim();
   const role = document.getElementById('profile-role').value.trim();
   if (!name) return;
-  window.S.user.name = name;
-  window.S.user.role = role;
-  window.S.user.initials = name.split(' ').map(x => x[0]).join('').substring(0, 2).toUpperCase();
-  document.getElementById('user-av').textContent = window.S.user.initials;
-  document.getElementById('user-name').textContent = window.S.user.name;
-  document.getElementById('user-role').textContent = window.S.user.role;
-  document.getElementById('modal-av').textContent = window.S.user.initials;
-  document.getElementById('modal-name').textContent = window.S.user.name;
-  window.sb.from('profiles').update({ name, role }).eq('id', window.S.user.id);
-  closeModal('profile-modal');
-  toast('Profile saved!', 'success');
+
+  window.sb.from('profiles').update({ name, role }).eq('id', window.S.user.id)
+    .then(({ error }) => {
+      if (error) {
+        toast('Failed to save profile', 'error');
+        return;
+      }
+      window.S.user.name = name;
+      window.S.user.role = role;
+      window.S.user.initials = name.split(' ').map(x => x[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('user-av').textContent = window.S.user.initials;
+      document.getElementById('user-name').textContent = window.S.user.name;
+      document.getElementById('user-role').textContent = window.S.user.role;
+      document.getElementById('modal-av').textContent = window.S.user.initials;
+      document.getElementById('modal-name').textContent = window.S.user.name;
+      closeModal('profile-modal');
+      toast('Profile saved!', 'success');
+    });
 }
 
 // ── INIT APP ──
