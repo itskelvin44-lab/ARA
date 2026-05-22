@@ -5,16 +5,16 @@
 function renderMessages() {
   const msgs = window.S.messages;
   const el = document.getElementById('chat-messages');
-  
+
   // Remember if user was at the bottom before re-render
   const wasAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
-  
+
   if (!msgs || !msgs.length) {
     el.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><div class="empty-title">No messages yet</div><div class="empty-sub">Be the first to say something to the group!</div></div>';
     return;
   }
   el.innerHTML = msgs.map(m => renderMsg(m)).join('');
-  
+
   // Scroll to bottom only if we were already at the bottom, or it's the initial load
   if (wasAtBottom || msgs.length <= 5) {
     el.scrollTop = el.scrollHeight;
@@ -27,9 +27,9 @@ function renderMsg(m) {
     ${!ismine ? `<div class="msg-av" style="background:${m.color};color:#fff">${m.author.split(' ').map(x => x[0]).join('')}</div>` : ''}
     <div class="msg-col">
       ${!ismine ? `<div class="msg-sender">${m.author}</div>` : ''}
-      ${m.text ? `<div class="bubble ${ismine ? 'mine' : 'other'}">${escHtml(m.text)}</div>` : ''}
+      ${m.text ? `<div class="bubble ${ismine ? 'mine' : 'other'}" ${ismine ? `onclick="editMessage('${m.id}')" title="Click to edit"` : ''}>${escHtml(m.text)}${m.edited ? ' <span style="font-size:10px;opacity:.6">(edited)</span>' : ''}</div>` : ''}
       ${m.file ? `<div class="bubble-attachment"><div class="attach-icon">${m.file.icon}</div><div class="attach-info"><div class="attach-name">${m.file.name}</div><div class="attach-size">${m.file.size}</div></div><button style="margin-left:auto;font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer" onclick="openLink('${m.file.url || '#'}')">↓</button></div>` : ''}
-      <div class="msg-time">${m.time}</div>
+      <div class="msg-time">${m.time}${m.edited ? ' · edited' : ''}</div>
     </div>
     ${ismine ? `<div class="msg-av" style="background:var(--accent);color:#fff">${window.S.user ? window.S.user.initials : 'Me'}</div>` : ''}
   </div>`;
@@ -45,13 +45,15 @@ function loadMessages() {
     .then(({ data, error }) => {
       if (error || !data) return;
       window.S.messages = data.map(m => ({
+        id: m.id,
         author: m.profiles?.name || 'Member',
-        color:  m.profiles?.color || '#1a56e8',
-        text:   m.type === 'text' ? m.content : '',
-        type:   m.type,
-        file:   m.type === 'file' ? { name: m.file_name, size: m.file_size, icon: '📎', url: m.file_url } : null,
-        time:   msgTime(m.created_at),
-        mine:   m.sender_id === window.S.user.id
+        color: m.profiles?.color || '#1a56e8',
+        text: m.type === 'text' ? m.content : '',
+        type: m.type,
+        file: m.type === 'file' ? { name: m.file_name, size: m.file_size, icon: '📎', url: m.file_url } : null,
+        time: msgTime(m.created_at),
+        edited: m.edited_at ? true : false,
+        mine: m.sender_id === window.S.user.id
       }));
       renderMessages();
     });
@@ -69,19 +71,19 @@ function sendMessage() {
     // Show message instantly — no waiting
     window.S.messages.push({
       author: window.S.user.name,
-      color:  window.S.user.color,
-      text:   text,
-      type:   'text',
-      file:   null,
-      time:   msgTime(new Date()),
-      mine:   true
+      color: window.S.user.color,
+      text: text,
+      type: 'text',
+      file: null,
+      time: msgTime(new Date()),
+      mine: true
     });
     renderMessages();
 
     window.sb.from('messages').insert({
       sender_id: window.S.user.id,
-      content:   text,
-      type:      'text'
+      content: text,
+      type: 'text'
     }).then(({ error }) => {
       if (error) {
         console.error('Send failed:', error);
@@ -101,7 +103,7 @@ function sendMessage() {
       toast('Network error', 'error');
       loadMessages();
     });
-  } catch(e) {
+  } catch (e) {
     console.error('sendMessage crashed:', e);
   }
 }
@@ -112,11 +114,11 @@ function subscribeToMessages() {
       { event: 'INSERT', schema: 'public', table: 'messages' },
       async (payload) => {
         const m = payload.new;
-        
+
         // Skip if this message is already in the array (optimistic render)
-        const exists = window.S.messages.some(msg => 
-          msg.text === m.content && 
-          msg.mine && 
+        const exists = window.S.messages.some(msg =>
+          msg.text === m.content &&
+          msg.mine &&
           m.sender_id === window.S.user.id
         );
         if (exists) return;
@@ -125,13 +127,14 @@ function subscribeToMessages() {
           .from('profiles').select('name, color').eq('id', m.sender_id).single();
 
         window.S.messages.push({
+          id: m.id,
           author: profile?.name || 'Member',
-          color:  profile?.color || '#1a56e8',
-          text:   m.type === 'text' ? m.content : '',
-          type:   m.type,
-          file:   m.type === 'file' ? { name: m.file_name, size: m.file_size, icon: '📎', url: m.file_url } : null,
-          time:   msgTime(m.created_at),
-          mine:   m.sender_id === window.S.user.id
+          color: profile?.color || '#1a56e8',
+          text: m.type === 'text' ? m.content : '',
+          type: m.type,
+          file: m.type === 'file' ? { name: m.file_name, size: m.file_size, icon: '📎', url: m.file_url } : null,
+          time: msgTime(m.created_at),
+          mine: m.sender_id === window.S.user.id
         });
         renderMessages();
 
@@ -153,7 +156,7 @@ function msgTime(dateStr) {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today - 86400000);
   const msgDay = new Date(msg.getFullYear(), msg.getMonth(), msg.getDate());
-  
+
   if (msgDay.getTime() === today.getTime()) {
     return msg.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
@@ -161,6 +164,21 @@ function msgTime(dateStr) {
     return 'Yesterday ' + msg.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
   return msg.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function editMessage(id) {
+  const msg = window.S.messages.find(x => x.id === id);
+  if (!msg || !msg.mine) return;
+  const newText = prompt('Edit your message:', msg.text);
+  if (!newText || newText === msg.text) return;
+
+  window.sb.from('messages').update({ content: newText, edited_at: new Date().toISOString() }).eq('id', id)
+    .then(({ error }) => {
+      if (error) { toast('Failed to edit', 'error'); return; }
+      msg.text = newText;
+      msg.edited = true;
+      renderMessages();
+    });
 }
 // ── CHAT INPUT HANDLERS ──
 function handleChatKey(e) {
@@ -196,9 +214,9 @@ async function handleFileAttach(input) {
 
     await window.sb.from('messages').insert({
       sender_id: window.S.user.id,
-      type:      'file',
+      type: 'file',
       file_name: f.name,
-      file_url:  publicUrl,
+      file_url: publicUrl,
       file_size: size
     });
   }
