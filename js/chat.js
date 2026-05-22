@@ -105,6 +105,15 @@ function subscribeToMessages() {
       { event: 'INSERT', schema: 'public', table: 'messages' },
       async (payload) => {
         const m = payload.new;
+        
+        // Skip if this message is already in the array (optimistic render)
+        const exists = window.S.messages.some(msg => 
+          msg.text === m.content && 
+          msg.mine && 
+          m.sender_id === window.S.user.id
+        );
+        if (exists) return;
+
         const { data: profile } = await window.sb
           .from('profiles').select('name, color').eq('id', m.sender_id).single();
 
