@@ -35,7 +35,8 @@ function renderNotices() {
       <div class="notice-actions">
         <button class="react-btn${n._liked ? ' active' : ''}" onclick="reactNotice('${n.id}','like',this)">👍 ${n.likes}</button>
         <button class="react-btn${n._pinned ? ' active' : ''}" onclick="reactNotice('${n.id}','pin',this)">📌 ${n.pins}</button>
-        <button class="react-btn" onclick="replyNotice('${n.id}')">💬 Reply</button>
+              <button class="react-btn" onclick="replyNotice('${n.id}')">💬 Reply</button>
+        ${n.author_id === window.S.user.id ? `<button class="react-btn" onclick="deleteNotice('${n.id}')" style="color:var(--red)">🗑 Delete</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -82,16 +83,17 @@ function loadNotices() {
     .then(({ data, error }) => {
       if (error || !data) return;
       window.S.notices = data.map(n => ({
-        id:      n.id,
-        title:   n.title,
-        body:    n.body,
-        cat:     n.category,
-        author:  n.profiles?.name || 'Member',
-        color:   n.profiles?.color || '#1a56e8',
-        time:    timeAgo(n.created_at),
-        likes:   n.notice_reactions.filter(r => r.type === 'like').length,
-        pins:    n.notice_reactions.filter(r => r.type === 'pin').length,
-        _liked:  n.notice_reactions.some(r => r.type === 'like' && r.user_id === window.S.user.id),
+        id: n.id,
+        author_id: n.author_id,
+        title: n.title,
+        body: n.body,
+        cat: n.category,
+        author: n.profiles?.name || 'Member',
+        color: n.profiles?.color || '#1a56e8',
+        time: timeAgo(n.created_at),
+        likes: n.notice_reactions.filter(r => r.type === 'like').length,
+        pins: n.notice_reactions.filter(r => r.type === 'pin').length,
+        _liked: n.notice_reactions.some(r => r.type === 'like' && r.user_id === window.S.user.id),
         _pinned: n.notice_reactions.some(r => r.type === 'pin' && r.user_id === window.S.user.id)
       }));
       renderNotices();
@@ -106,9 +108,9 @@ function postNotice() {
   const cat = document.getElementById('notice-cat').value;
 
   window.sb.from('notices').insert({
-    title:     t,
-    body:      b,
-    category:  cat,
+    title: t,
+    body: b,
+    category: cat,
     author_id: window.S.user.id
   }).then(({ error }) => {
     if (error) { toast('Could not post notice', 'error'); return; }
@@ -154,7 +156,15 @@ function showNewPost() {
   navTo('notices', null);
   setTimeout(() => document.getElementById('notice-title').focus(), 100);
 }
-
+// ── DELETE A NOTICE ──
+function deleteNotice(id) {
+  if (!confirm('Delete this notice? This cannot be undone.')) return;
+  window.sb.from('notices').delete().eq('id', id).then(({ error }) => {
+    if (error) { toast('Failed to delete', 'error'); return; }
+    toast('Notice deleted', 'success');
+    loadNotices();
+  });
+}
 // ── TIME AGO HELPER ──
 function timeAgo(dateStr) {
   const now = new Date();

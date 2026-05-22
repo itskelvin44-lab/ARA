@@ -25,7 +25,8 @@ function renderNotes() {
       <div class="notice-actions">
         ${n.desc && n.desc.startsWith('http') ? `<button class="react-btn" onclick="openLink('${n.desc.split(' ')[0]}')">🔗 Open Link</button>` : ''}
         <button class="react-btn" onclick="toast('Resource saved to your library')">⭐ Save</button>
-        <button class="react-btn" onclick="replyNote('${n.id}')">💬 Discuss in Chat</button>
+                <button class="react-btn" onclick="replyNote('${n.id}')">💬 Discuss in Chat</button>
+        ${n.author_id === window.S.user.id ? `<button class="react-btn" onclick="deleteNote('${n.id}')" style="color:var(--red)">🗑 Delete</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -41,13 +42,14 @@ function loadNotes() {
       if (error || !data) return;
       const icons = { paper: '📄', book: '📖', doc: '📝', link: '🔗', other: '📦' };
       window.S.notes = data.map(r => ({
-        id:     r.id,
-        title:  r.title,
-        type:   r.type,
-        desc:   r.description,
-        icon:   icons[r.type] || '📦',
+        id: r.id,
+        author_id: r.author_id,
+        title: r.title,
+        type: r.type,
+        desc: r.description,
+        icon: icons[r.type] || '📦',
         author: r.profiles?.name || 'Member',
-        time:   timeAgo(r.created_at)
+        time: timeAgo(r.created_at)
       }));
       renderNotes();
     });
@@ -61,10 +63,10 @@ function addNote() {
   const type = document.getElementById('note-type').value;
 
   window.sb.from('resources').insert({
-    title:       t,
-    type:        type,
+    title: t,
+    type: type,
     description: d,
-    author_id:   window.S.user.id
+    author_id: window.S.user.id
   }).then(({ error }) => {
     if (error) { toast('Could not save resource', 'error'); return; }
     document.getElementById('note-title').value = '';
@@ -102,7 +104,8 @@ function renderNoteFiles() {
         <div class="notes-file-meta">${f.size} · uploaded by ${f.author} · ${f.time}</div>
       </div>
       <div class="notes-file-actions">
-        <button class="download-btn" onclick="openLink('${f.url}')">⬇ Download</button>
+                <button class="download-btn" onclick="openLink('${f.url}')">⬇ Download</button>
+        <button class="download-btn" onclick="deleteFile('${f.id}')" style="color:var(--red);border-color:var(--red)">🗑</button>
       </div>
     </div>
   `).join('');
@@ -124,13 +127,13 @@ function loadNoteFiles() {
           js: '💻', sql: '🗄', json: '📋', zip: '🗜'
         };
         return {
-          id:     u.id,
-          name:   u.file_name,
-          size:   u.file_size,
-          icon:   iconMap[ext] || '📦',
-          url:    u.file_url,
+          id: u.id,
+          name: u.file_name,
+          size: u.file_size,
+          icon: iconMap[ext] || '📦',
+          url: u.file_url,
           author: u.profiles?.name || 'Member',
-          time:   timeAgo(u.created_at)
+          time: timeAgo(u.created_at)
         };
       });
       renderNoteFiles();
@@ -155,12 +158,30 @@ async function uploadNoteFile(input) {
 
     await window.sb.from('uploads').insert({
       uploaded_by: window.S.user.id,
-      file_name:   f.name,
-      file_url:    publicUrl,
-      file_size:   size
+      file_name: f.name,
+      file_url: publicUrl,
+      file_size: size
     });
   }
   input.value = '';
   loadNoteFiles();
   toast(`${files.length} file${files.length > 1 ? 's' : ''} uploaded`, 'success');
+}
+// ── DELETE A RESOURCE ──
+function deleteNote(id) {
+  if (!confirm('Delete this resource? This cannot be undone.')) return;
+  window.sb.from('resources').delete().eq('id', id).then(({ error }) => {
+    if (error) { toast('Failed to delete', 'error'); return; }
+    toast('Resource deleted', 'success');
+    loadNotes();
+  });
+}
+// ── DELETE AN UPLOADED FILE ──
+function deleteFile(id) {
+  if (!confirm('Delete this file? This cannot be undone.')) return;
+  window.sb.from('uploads').delete().eq('id', id).then(({ error }) => {
+    if (error) { toast('Failed to delete', 'error'); return; }
+    toast('File deleted', 'success');
+    loadNoteFiles();
+  });
 }
