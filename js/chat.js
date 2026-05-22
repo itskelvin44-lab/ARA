@@ -97,7 +97,6 @@ function sendMessage() {
     console.error('sendMessage crashed:', e);
   }
 }
-// ── REALTIME SUBSCRIPTION ──
 function subscribeToMessages() {
   window.S.realtimeChannel = window.sb
     .channel('group-chat')
@@ -127,6 +126,15 @@ function subscribeToMessages() {
           mine:   m.sender_id === window.S.user.id
         });
         renderMessages();
+
+        // Browser notification for new messages
+        if (document.hidden && m.sender_id !== window.S.user.id && Notification.permission === 'granted') {
+          new Notification('ARA Hub — New message', {
+            body: (profile?.name || 'Someone') + ': ' + (m.content || 'Sent a file'),
+            icon: '/icon-192.png',
+            tag: 'chat-message'
+          });
+        }
       }
     )
     .subscribe();

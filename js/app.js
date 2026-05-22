@@ -144,4 +144,16 @@ function initApp() {
   if (typeof loadNoteFiles === 'function') loadNoteFiles();
   if (typeof subscribeToMessages === 'function') subscribeToMessages();
   if (typeof subscribeToPresence === 'function') subscribeToPresence();
+   // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    setTimeout(() => {
+      Notification.requestPermission();
+    }, 3000);
+  }
+
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
+  }
 }
+

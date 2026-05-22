@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#0a0b0f"/>
+  <polygon points="256,60 430,160 430,360 256,460 82,360 82,160" fill="#1a56e8" stroke="#3b82f6" stroke-width="4"/>
+  <text x="256" y="300" text-anchor="middle" fill="white" font-family="sans-serif" font-size="120" font-weight="bold">ARA</text>
+</svg>
