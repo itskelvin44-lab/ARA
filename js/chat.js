@@ -54,29 +54,45 @@ function sendMessage() {
   try {
     const ta = document.getElementById('chat-textarea');
     const text = ta.value.trim();
-    console.log('sendMessage called. Text:', text);
-    if (!text) { console.log('sendMessage: no text, returning'); return; }
+    if (!text) return;
     ta.value = '';
     updateSendBtn();
-    console.log('sendMessage: about to insert');
-    
+
+    // Show message instantly — no waiting
+    window.S.messages.push({
+      author: window.S.user.name,
+      color:  window.S.user.color,
+      text:   text,
+      type:   'text',
+      file:   null,
+      time:   new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      mine:   true
+    });
+    renderMessages();
+
     window.sb.from('messages').insert({
       sender_id: window.S.user.id,
       content:   text,
       type:      'text'
     }).then(({ error }) => {
-      console.log('sendMessage: insert done. Error:', error);
       if (error) {
         console.error('Send failed:', error);
-        toast('Message failed to send. Check console.', 'error');
+        toast('Message failed to send', 'error');
+        loadMessages();
         return;
       }
-      loadMessages();
+      // Fallback: if Realtime doesn't fire within 1.5s, fetch
+      const msgCount = window.S.messages.length;
+      setTimeout(() => {
+        if (window.S.messages.length === msgCount) {
+          loadMessages();
+        }
+      }, 1500);
     }).catch(err => {
       console.error('Send error:', err);
-      toast('Network error sending message.', 'error');
+      toast('Network error', 'error');
+      loadMessages();
     });
-    console.log('sendMessage: insert called');
   } catch(e) {
     console.error('sendMessage crashed:', e);
   }
