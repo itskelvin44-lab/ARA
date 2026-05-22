@@ -5,12 +5,20 @@
 function renderMessages() {
   const msgs = window.S.messages;
   const el = document.getElementById('chat-messages');
+  
+  // Remember if user was at the bottom before re-render
+  const wasAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
+  
   if (!msgs || !msgs.length) {
     el.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><div class="empty-title">No messages yet</div><div class="empty-sub">Be the first to say something to the group!</div></div>';
     return;
   }
   el.innerHTML = msgs.map(m => renderMsg(m)).join('');
-  el.scrollTop = el.scrollHeight;
+  
+  // Scroll to bottom only if we were already at the bottom, or it's the initial load
+  if (wasAtBottom || msgs.length <= 5) {
+    el.scrollTop = el.scrollHeight;
+  }
 }
 
 function renderMsg(m) {
@@ -42,7 +50,7 @@ function loadMessages() {
         text:   m.type === 'text' ? m.content : '',
         type:   m.type,
         file:   m.type === 'file' ? { name: m.file_name, size: m.file_size, icon: '📎', url: m.file_url } : null,
-        time:   new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time:   msgTime(m.created_at),
         mine:   m.sender_id === window.S.user.id
       }));
       renderMessages();
@@ -65,7 +73,7 @@ function sendMessage() {
       text:   text,
       type:   'text',
       file:   null,
-      time:   new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time:   msgTime(new Date()),
       mine:   true
     });
     renderMessages();
@@ -122,7 +130,7 @@ function subscribeToMessages() {
           text:   m.type === 'text' ? m.content : '',
           type:   m.type,
           file:   m.type === 'file' ? { name: m.file_name, size: m.file_size, icon: '📎', url: m.file_url } : null,
-          time:   new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time:   msgTime(m.created_at),
           mine:   m.sender_id === window.S.user.id
         });
         renderMessages();
@@ -139,7 +147,21 @@ function subscribeToMessages() {
     )
     .subscribe();
 }
-
+function msgTime(dateStr) {
+  const now = new Date();
+  const msg = new Date(dateStr);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today - 86400000);
+  const msgDay = new Date(msg.getFullYear(), msg.getMonth(), msg.getDate());
+  
+  if (msgDay.getTime() === today.getTime()) {
+    return msg.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  if (msgDay.getTime() === yesterday.getTime()) {
+    return 'Yesterday ' + msg.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  return msg.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
 // ── CHAT INPUT HANDLERS ──
 function handleChatKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
