@@ -148,6 +148,19 @@ function subscribeToMessages() {
         }
       }
     )
+        
+    .on('postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'messages' },
+      (payload) => {
+        const updated = payload.new;
+        const msg = window.S.messages.find(x => x.id === updated.id);
+        if (msg) {
+          msg.text = updated.content;
+          msg.edited = true;
+          renderMessages();
+        }
+      }
+    )
     .subscribe();
 }
 function msgTime(dateStr) {
